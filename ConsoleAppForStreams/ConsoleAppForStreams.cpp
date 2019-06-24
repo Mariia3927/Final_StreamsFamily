@@ -6,20 +6,27 @@
 
 int main()
 {
-	FileStream fileOut("Test.txt", IBaseStream::StreamType::out);
+	try
+	{
+		 OFileStream fileOut("Test.txt");
 
-	 std::string buf;
-	 MemoryStream memoryOut(buf, IBaseStream::StreamType::out);
+		 std::vector<char> buf;
+		 OMemoryStream memoryOut(buf);
+		 OConsoleStream consoleOut;
 
-	 ConsoleStream consoleOut(IBaseStream::StreamType::out);
+		 std::string tmp = "012345678901234567890123456789";
+		 fileOut.Write(tmp.c_str(), tmp.length());
+		 memoryOut.Write(tmp.c_str(), tmp.length());
+		 memoryOut.Show();
 
-	 fileOut.AddStream(&memoryOut);
-	 fileOut.AddStream(&consoleOut);
+		consoleOut.Write(tmp.c_str(), tmp.length());
+	}
+	catch (const std::exception& exc)
+	{
+		std::cout << exc.what() << std::endl;
+	}
 
-	 std::string tmp = "012345678901234567890123456789";
-	 fileOut.Write(tmp.c_str(), tmp.length());
-
-	 memoryOut.Show();
+	 
 
 
 

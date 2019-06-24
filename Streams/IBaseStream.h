@@ -6,70 +6,101 @@
 class IBaseStream
 {
 public:
-	enum class StreamType
-	{
-		in, out
-	};
+	virtual std::size_t Write(const char* buffer, int numberOfBytes) { return 0; };
+	virtual std::size_t Read(char* buffer, int numberOfBytes) { return 0; };
 
-	explicit IBaseStream(StreamType type) : m_Type(type) {}
-	virtual ~IBaseStream() {}
-
-	virtual IBaseStream& Write(const char* buffer, int numberOfBytes) = 0;
-	virtual IBaseStream& Read(char* buffer, int numberOfBytes) = 0;
-
-	bool AddStream(IBaseStream* object);
-	bool RemoveStream(IBaseStream* object);
-
-	StreamType GetType() const { return m_Type; }
-
-protected:
-	bool WriteToAllStreams(const char* buffer, int numberOfBytes);
-	bool ReadFromAllStreams(char* buffer, int numberOfBytes);
-
-	bool AreTypesEqual(StreamType type);
-	bool CheckParameters(const char* buffer, int numberOfBytes);
-
-protected:
-	StreamType m_Type;
-	std::vector<IBaseStream*> m_Streams{};
+	void CheckParameters(const char* buffer, int numberOfBytes);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FileStream : public IBaseStream
+class IFileStream : public IBaseStream
 {
 public:
-	FileStream(std::string fileName, StreamType type);
-	~FileStream();
-
-	IBaseStream& Write(const char* buffer, int numberOfBytes) override;
-	IBaseStream& Read(char* buffer, int numberOfBytes) override;
+	IFileStream(std::string fileName);
+	
+	std::size_t Read(char* buffer, int numberOfBytes) override;
 
 private:
-	std::fstream m_Object;
+	std::fstream m_object;
+};
+
+
+class OFileStream : public IBaseStream
+{
+public:
+	OFileStream(std::string fileName);
+
+	std::size_t Write(const char* buffer, int numberOfBytes) override;
+
+private:
+	std::fstream m_object;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class MemoryStream : public IBaseStream
+class IMemoryStream : public IBaseStream
 {
 public:
-	MemoryStream(std::string buffer, StreamType type);
+	IMemoryStream(std::vector<char> buffer);
 
-	IBaseStream& Write(const char* buffer, int numberOfBytes) override;
-	IBaseStream& Read(char* buffer, int numberOfBytes) override;
+	std::size_t Read(char* buffer, int numberOfBytes) override;
+
+private:
+	std::vector<char> m_buffer{};
+};
+
+
+class OMemoryStream : public IBaseStream
+{
+public:
+	OMemoryStream(std::vector<char> buffer);
+
+	std::size_t Write(const char* buffer, int numberOfBytes) override;
 
 	void Show();
 
 private:
-	std::string m_Buffer;
+	std::vector<char> m_buffer;
 };
 
-class ConsoleStream : public IBaseStream
+
+
+
+class IConsoleStream : public IBaseStream
 {
 public:
-	explicit ConsoleStream(StreamType type);
+	std::size_t Read(char* buffer, int numberOfBytes) override;
+};
 
-	IBaseStream& Write(const char* buffer, int numberOfBytes) override;
-	IBaseStream& Read(char* buffer, int numberOfBytes) override;
+
+class OConsoleStream : public IBaseStream
+{
+public:
+	std::size_t Write(const char* buffer, int numberOfBytes) override;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class IComposingStream : public IBaseStream
+{
+public:
+	void AddStream(IBaseStream* object);
+	void RemoveStream(IBaseStream* object);
+	std::size_t Read(char* buffer, int numberOfBytes) override;
+
+private:
+	std::vector<IBaseStream*> m_streams{};
+};
+
+class OComposingStream : public IBaseStream
+{
+public:
+	void AddStream(IBaseStream* object);
+	void RemoveStream(IBaseStream* object);
+	std::size_t Write(const char* buffer, int numberOfBytes) override;
+
+private:
+	std::vector<IBaseStream*> m_streams{};
 };

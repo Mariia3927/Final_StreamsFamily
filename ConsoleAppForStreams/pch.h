@@ -9,8 +9,6 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include "gtest/gtest.h"
-#include "stdafx.h"
-
+#include "..\Streams\stdafx.h"
 
 #endif //PCH_H

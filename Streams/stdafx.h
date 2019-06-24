@@ -14,8 +14,10 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <memory>
+#include <exception>
+
 #include "IBaseStream.h"
+
 const int bufferLength = 256;
 
 
